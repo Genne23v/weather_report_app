@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8A7724C3292A94380085018C /* DataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A7724C2292A94380085018C /* DataSource.swift */; };
+		8A7724C5292A979D0085018C /* WeatherHistoryTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A7724C4292A979D0085018C /* WeatherHistoryTableViewCell.swift */; };
 		8AFE3F6429149CD80059ECD4 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AFE3F6329149CD80059ECD4 /* AppDelegate.swift */; };
 		8AFE3F6629149CD80059ECD4 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AFE3F6529149CD80059ECD4 /* SceneDelegate.swift */; };
 		8AFE3F6829149CD80059ECD4 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AFE3F6729149CD80059ECD4 /* ViewController.swift */; };
@@ -18,6 +20,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		8A7724C2292A94380085018C /* DataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSource.swift; sourceTree = "<group>"; };
+		8A7724C4292A979D0085018C /* WeatherHistoryTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherHistoryTableViewCell.swift; sourceTree = "<group>"; };
 		8AFE3F6029149CD80059ECD4 /* A3_Wonkeun.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = A3_Wonkeun.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8AFE3F6329149CD80059ECD4 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		8AFE3F6529149CD80059ECD4 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -69,6 +73,8 @@
 				8AFE3F6C29149CD80059ECD4 /* Assets.xcassets */,
 				8AFE3F6E29149CD80059ECD4 /* LaunchScreen.storyboard */,
 				8AFE3F7129149CD80059ECD4 /* Info.plist */,
+				8A7724C2292A94380085018C /* DataSource.swift */,
+				8A7724C4292A979D0085018C /* WeatherHistoryTableViewCell.swift */,
 			);
 			path = A3_Wonkeun;
 			sourceTree = "<group>";
@@ -144,6 +150,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8A7724C5292A979D0085018C /* WeatherHistoryTableViewCell.swift in Sources */,
+				8A7724C3292A94380085018C /* DataSource.swift in Sources */,
 				8AFE3F6829149CD80059ECD4 /* ViewController.swift in Sources */,
 				8AFE3F6429149CD80059ECD4 /* AppDelegate.swift in Sources */,
 				8AFE3F7A2914A4E20059ECD4 /* WeatherReport.swift in Sources */,
