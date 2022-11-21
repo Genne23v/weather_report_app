@@ -9,7 +9,6 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
     var lat:Double = 0.0
     var lng:Double = 0.0
     var city:String = ""
-//    var weatherReport:WeatherReport
     var defaults:UserDefaults = UserDefaults.standard
 
     //MARK: Outlets
@@ -17,16 +16,16 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
     @IBOutlet weak var lblLocation: UILabel!
     @IBOutlet weak var lblTemperature: UILabel!
     @IBOutlet weak var lblWindSpeed: UILabel!
-    
+    @IBOutlet weak var lblWindDirection: UILabel!
+    @IBOutlet weak var locationSymbol: UIImageView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         locationManager = CLLocationManager()
         locationManager.requestWhenInUseAuthorization()
-        locationManager.startUpdatingLocation() //IS IT NEEDED?
+        locationManager.startUpdatingLocation()
         locationManager.delegate = self
-        
     }
 
     //MARK: Functions
@@ -68,14 +67,14 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
     @IBAction func saveReportBtn(_ sender: Any) {
         
         do {
-//            let encoder = JSONEncoder()
-//            let encodedWeatherReport = try encoder.encode(weatherReport)
-//            defaults.set(encodedWeatherReport, forKey: "KEY_WEATHER")
+            let encoder = JSONEncoder()
+            let encoded = try encoder.encode(DataSource.shared.weatherDataNow)
+            defaults.set(encoded, forKey: "WEATHER_DATA")
+            print("Data saved to UserDefaults")
         } catch {
-            print("Cannot encode the weahterReport data")
+            print("Could not save weahter data to UserDefaults")
             print(error)
         }
-    
     }
     
     func fetchWeatherData(city:String) {
@@ -98,20 +97,51 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
             
             if let jsonData = data {
                 print("Printing JSON data")
-                print(jsonData)
                 
                 do {
                     let decoder = JSONDecoder()
-//                    self.weatherReport
                     let decodedItem:WeatherReport = try decoder.decode(WeatherReport.self, from: jsonData)
                     print("Printing decodedItem")
                     print(decodedItem)
+                    DataSource.shared.weatherDataNow = decodedItem
                 } catch let error {
                     print("An error occurred during JSON decoding")
                     print(error)
                 }
             }
         }.resume()
+        
+        updateWeatherView()
     }
+    
+    func updateWeatherView() {
+        let currentWeatherData:WeatherReport = DataSource.shared.weatherDataNow
+        
+        self.lblDateTime.text = currentWeatherData.localTime
+        self.lblLocation.text = currentWeatherData.city
+        self.lblTemperature.text = "\(currentWeatherData.temperature) °C"
+        self.lblWindSpeed.text = "\(currentWeatherData.windSpeed) kph"
+        let windDirection = Direction(Double(currentWeatherData.windDegree ))
+        self.lblWindDirection.text = "From \(windDirection)"
+    }
+}
+
+//MARK: Helper extension
+enum Direction: String, CaseIterable {
+    case n, nne, ne, ene, e, ese, se, sse, s, ssw, sw, wsw, w, wnw, nw, nnw
+}
+
+extension Direction: CustomStringConvertible {
+    init<D: BinaryFloatingPoint>(_ direction: D) {
+        self = Self.allCases[Int((direction.angle+11.25).truncatingRemainder(dividingBy: 360)/22.5)]
+    }
+    var description: String { rawValue.uppercased() }
+}
+
+extension BinaryFloatingPoint {
+    var angle: Self {
+        (truncatingRemainder(dividingBy: 360) + 360).truncatingRemainder(dividingBy: 360)
+    }
+    var direction: Direction { .init(self) }
 }
 

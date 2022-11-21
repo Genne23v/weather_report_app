@@ -4,6 +4,7 @@ class DataSource {
     static let shared = DataSource()
     private init() {}
     
-    var weatherReportData:[WeatherReport] = []
+    var weatherDataNow:WeatherReport = WeatherReport()
+    var weatherHistoryData:[WeatherReport] = []
 
 }

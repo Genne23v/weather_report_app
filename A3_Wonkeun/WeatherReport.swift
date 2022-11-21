@@ -9,8 +9,10 @@ struct WeatherReport: Codable {
     var windDegree:Int = 0
     var temperature:Double = 0
     
+    init() {}
     
     enum RootKeys: String, CodingKey {
+        case id
         case location = "location"
         case weather = "current"
     }
@@ -27,7 +29,17 @@ struct WeatherReport: Codable {
     }
     
     func encode(to encoder: Encoder) throws {
-        //Protocol function
+        var rootContainer = encoder.container(keyedBy: RootKeys.self)
+        try rootContainer.encode(id, forKey: RootKeys.id)
+        
+        var locationContainer = rootContainer.nestedContainer(keyedBy: LocationKeys.self, forKey: RootKeys.location)
+        var weatherContainer = rootContainer.nestedContainer(keyedBy: WeatherKeys.self, forKey: RootKeys.weather)
+        
+        try locationContainer.encode(city, forKey: LocationKeys.city)
+        try locationContainer.encode(localTime, forKey: LocationKeys.localTime)
+        try weatherContainer.encode(windSpeed, forKey: WeatherKeys.windSpeed)
+        try weatherContainer.encode(windDegree, forKey: WeatherKeys.windDegree)
+        try weatherContainer.encode(temperature, forKey: WeatherKeys.temperature)
     }
     
     init(from decoder:Decoder) throws {
