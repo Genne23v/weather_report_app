@@ -65,10 +65,11 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
     }
     
     @IBAction func saveReportBtn(_ sender: Any) {
+        DataSource.shared.weatherHistoryData.append(DataSource.shared.weatherDataNow)
         
         do {
             let encoder = JSONEncoder()
-            let encoded = try encoder.encode(DataSource.shared.weatherDataNow)
+            let encoded = try encoder.encode(DataSource.shared.weatherHistoryData)
             defaults.set(encoded, forKey: "WEATHER_DATA")
             print("Data saved to UserDefaults")
         } catch {
