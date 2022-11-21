@@ -11,6 +11,7 @@ struct WeatherReport: Codable {
     
     init() {}
     
+    //Nested JSON structure mapping
     enum RootKeys: String, CodingKey {
         case id
         case location = "location"
@@ -28,6 +29,7 @@ struct WeatherReport: Codable {
         case temperature = "feelslike_c"
     }
     
+    //Specify how to encode nested JSON
     func encode(to encoder: Encoder) throws {
         var rootContainer = encoder.container(keyedBy: RootKeys.self)
         try rootContainer.encode(id, forKey: RootKeys.id)
@@ -42,6 +44,7 @@ struct WeatherReport: Codable {
         try weatherContainer.encode(temperature, forKey: WeatherKeys.temperature)
     }
     
+    //Decode nested JSON data
     init(from decoder:Decoder) throws {
         let response = try decoder.container(keyedBy: RootKeys.self)
         let location = try decoder.container(keyedBy: LocationKeys.self)
@@ -55,5 +58,28 @@ struct WeatherReport: Codable {
         windSpeed = try weatherContainer.decode(Double.self, forKey: .windSpeed)
         windDegree = try weatherContainer.decode(Int.self, forKey: .windDegree)
         temperature = try weatherContainer.decode(Double.self, forKey: .temperature)
+    }
+    
+    //Variable to retreive an array of WeatherReport objects from UserDefaults
+    static var getAllWeatherReports: [WeatherReport] {
+        let defaultWeatherReport = WeatherReport()
+        if let objects = UserDefaults.standard.value(forKey: "WEATHER_DATA") as? Data {
+            let decoder = JSONDecoder()
+            if let objectsDecoded = try? decoder.decode(Array.self, from: objects) as [WeatherReport] {
+                return objectsDecoded
+            } else {
+                return [defaultWeatherReport]
+            }
+        } else {
+            return [defaultWeatherReport]
+        }
+    }
+    
+    //Save all encoded WeatherReport to UserDefaults
+    static func saveAllWeatherReports(allWeatherReports: [WeatherReport]) {
+        let encoder = JSONEncoder()
+        if let encoded = try? encoder.encode(allWeatherReports) {
+            UserDefaults.standard.set(encoded, forKey: "WEATHER_DATA")
+        }
     }
 }

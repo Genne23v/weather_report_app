@@ -22,12 +22,17 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+    }
+
+    //Reload location data when entering from another tab
+    override func viewDidAppear(_ animated: Bool) {
         locationManager = CLLocationManager()
         locationManager.requestWhenInUseAuthorization()
         locationManager.startUpdatingLocation()
         locationManager.delegate = self
     }
-
+    
+    
     //MARK: Functions
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations:[CLLocation]) {
         if let lastKnownLocation:CLLocation = locations.first {
@@ -37,6 +42,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
             lng = lastKnownLocation.coordinate.longitude
         }
         
+        //Reverse geocoding from latitude, longitude retreived from device
         let locationToGeocode = CLLocation(latitude: lat, longitude: lng)
         geocoder.reverseGeocodeLocation(locationToGeocode) { (result, error) in
             
@@ -57,6 +63,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
                         print("Address found: \(placemark?.locality), \(placemark?.subLocality)")
                         self.city = placemark?.locality ?? ""
                         
+                        //Fetch new weather data using city
                         self.fetchWeatherData(city: self.city)
                     }
                 }
@@ -65,12 +72,12 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
     }
     
     @IBAction func saveReportBtn(_ sender: Any) {
+        //Add current weather data to an array
         DataSource.shared.weatherHistoryData.append(DataSource.shared.weatherDataNow)
         
         do {
-            let encoder = JSONEncoder()
-            let encoded = try encoder.encode(DataSource.shared.weatherHistoryData)
-            defaults.set(encoded, forKey: "WEATHER_DATA")
+            //Save all WeatherReport to UserDefaults
+            WeatherReport.saveAllWeatherReports(allWeatherReports: DataSource.shared.weatherHistoryData)
             print("Data saved to UserDefaults")
         } catch {
             print("Could not save weahter data to UserDefaults")
@@ -80,10 +87,22 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
     
     func fetchWeatherData(city:String) {
         
-        let weatherApiEndpoint = "https://api.weatherapi.com/v1/current.json?key=dbb5a3ccfd784a43b2430206221811&q=\(city)&api=no"
+        //Replace empty spaces in city name to avoid fetch error
+        let cityEncoded = city.replacingOccurrences(of: " ", with: "%20")
+        
+        let weatherApiEndpoint = "https://api.weatherapi.com/v1/current.json?key=dbb5a3ccfd784a43b2430206221811&q=\(cityEncoded)&api=no"
         
         guard let apiUrl = URL(string: weatherApiEndpoint) else {
             print("Could not convert the string endpoint to an URL object")
+            print(weatherApiEndpoint)
+            
+            //Indicate weather info fetch was not successful on the screen
+            self.lblDateTime.text = "____-__-__ __:__"
+            self.lblLocation.text = "Can't find the location"
+            self.lblTemperature.text = "__._ °C"
+            self.lblWindSpeed.text = "___._ kph"
+            self.lblWindDirection.text = "From ___"
+            
             return
         }
         
@@ -100,11 +119,15 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
                 print("Printing JSON data")
                 
                 do {
+                    //Decode fetched data and store it to singleton data
                     let decoder = JSONDecoder()
                     let decodedItem:WeatherReport = try decoder.decode(WeatherReport.self, from: jsonData)
                     print("Printing decodedItem")
                     print(decodedItem)
                     DataSource.shared.weatherDataNow = decodedItem
+                    
+                    //Update the view
+                    self.updateWeatherView()
                 } catch let error {
                     print("An error occurred during JSON decoding")
                     print(error)
@@ -112,9 +135,9 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
             }
         }.resume()
         
-        updateWeatherView()
     }
     
+    //Update view function
     func updateWeatherView() {
         let currentWeatherData:WeatherReport = DataSource.shared.weatherDataNow
         
@@ -125,6 +148,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         let windDirection = Direction(Double(currentWeatherData.windDegree ))
         self.lblWindDirection.text = "From \(windDirection)"
     }
+    
 }
 
 //MARK: Helper extension
@@ -132,6 +156,7 @@ enum Direction: String, CaseIterable {
     case n, nne, ne, ene, e, ese, se, sse, s, ssw, sw, wsw, w, wnw, nw, nnw
 }
 
+//Helper function to get a direction using wind degree
 extension Direction: CustomStringConvertible {
     init<D: BinaryFloatingPoint>(_ direction: D) {
         self = Self.allCases[Int((direction.angle+11.25).truncatingRemainder(dividingBy: 360)/22.5)]
